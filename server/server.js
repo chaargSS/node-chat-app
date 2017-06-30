@@ -16,10 +16,24 @@ app.use(express.static(publicPath));
 io.on('connection',(socket)=>{
      console.log('new user connected');
 
+     socket.emit('newMessage',{
+         from:'abc',
+         text:'hey,are you listening',
+         cteatedAt:123
+     });
+
+     socket.on('createMessage',(createM)=>{
+         console.log('create new message',createM);
+     })
+
      socket.on('disconnect',()=>{
                console.log('disconnected from client');
            });
-}); //io.on(event name,callback) lets us register event //socket represent the individual user
+});
+ //io.on(event name,callback) lets us register event //socket represent the individual user
+
+//socket.emit()//emit to single connection
+//io.emit () //emit to all connection
 
 
 

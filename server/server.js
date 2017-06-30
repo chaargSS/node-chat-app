@@ -3,38 +3,28 @@ const express = require('express');
 const socketIO= require('socket.io');
 const http = require('http');
 
+const {generateMessage} = require('./utils/message');
 const publicPath = path.join(__dirname,'../public');
 
 var PORT = process.env.PORT || 3000;
 var app = express();
-var server = http.createServer(app);  //earlier we are using createServer() bihind in app.listen()
-var io =socketIO(server); //we are getting web socket server
+var server = http.createServer(app);  
+var io =socketIO(server); 
 
-//creating static middleware
+
 app.use(express.static(publicPath));
 
 io.on('connection',(socket)=>{
      console.log('new user connected');
 
-   socket.emit('newMessage',{
-        user:'Admin',
-        text:'welcome to chat app',
-        createdAt: new Date().getTime()
-    });
-
-    socket.broadcast.emit('newMessage',{
-             from:'Admin',
-             text:'New user is joined',
-             createdAt: new Date().getTime()
-              });
+   socket.emit('newMessage',generateMessage('Admin','welcome to chat app'));
+    
+    socket.broadcast.emit('newMessage',generateMessage('Admin','New user is joined'));
 
         socket.on('createMessage',(message)=>{
          console.log('create new message',message);
-         io.emit('newMessage',{
-             from:message.to,
-             text:message.text,
-             createdAt: new Date().getTime()
-              });
+         //user to user message
+         io.emit('newMessage',generateMessage(message.from,message.text));
      });
 
 
@@ -42,12 +32,6 @@ io.on('connection',(socket)=>{
                console.log('disconnected from client');
            });
 });
- //io.on(event name,callback) lets us register event //socket represent the individual user
-
-//socket.emit()//emit to single connection
-//io.emit () //emit to all connection
-
-
 
 server.listen(PORT,()=>{
     console.log('listening to port',PORT);

@@ -29,14 +29,14 @@ var socket = io();
         });
            
     jQuery('#message-form').on('submit',function(e){
-       e.preventDefault(); //prevent the default behaiviour
+       e.preventDefault(); 
+       var messageTextBox=jQuery('[name=message]');
 
-       
         socket.emit('createMessage',{
             from:'user',
-            text:jQuery('[name=message]').val()
+            text:messageTextBox.val()
         },function(){
-
+          messageTextBox.val('');
         });
 
 });
@@ -46,13 +46,17 @@ locatinButton.on('click',function(){
     if(!navigator.geolocation){
         return alert('Geolocation not supported by browser');
     }
+      
+      locatinButton.attr('disabled','disabled').text('sending location ...');
 
     navigator.geolocation.getCurrentPosition(function(position){
+      locatinButton.removeAttr('disabled').text('Send Location');
       socket.emit('createLocationMessage',{
           latitude:position.coords.latitude,
           longitude:position.coords.longitude
       });
      },function(){
+          locatinButton.removeAttr('disabled').text('Send Location');
     alert('unable to feach  location.');
        });
 });
